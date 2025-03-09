@@ -4,6 +4,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
+require('dotenv').config();
+
 const app = express();
 app.use(express.json());
 app.use(cors()); // Ensures cross-origin requests work
@@ -50,6 +52,39 @@ app.get('/orders', async (req, res) => {
     res.status(500).json({ error: "Failed to fetch orders", details: error.message });
   }
 });
+
+
+app.put('/order/:id', async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    res.status(200).json(order);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update order' });
+  }
+});
+
+app.delete('/order/:id', async (req, res) => {
+  try {
+    const order = await Order.findByIdAndDelete(req.params.id);
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    res.status(200).json({ message: 'Order deleted' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete order' });
+  }
+});
+
+// Root Route (For testing)
+app.get('/', (req, res) => {
+  res.send('🚀 Server is running successfully!');
+});
+
+
+
 
 // Update order status with validation
 app.put('/order/:id', async (req, res) => {
